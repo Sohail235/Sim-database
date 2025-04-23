@@ -1,126 +1,178 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SIM Data Lookup - Created by Sohail Khan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIM Data Lookup | Created by Sohail Khan</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #ff4e8e, #d946ef);
-      transition: background 0.4s;
+    canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
     }
-    .card {
-      backdrop-filter: blur(10px);
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      box-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
-      animation: float 4s ease-in-out infinite;
+    .urdu-text {
+      font-family: 'Noto Nastaliq Urdu', sans-serif;
     }
-    .neon-text {
-      text-shadow: 0 0 10px #fff, 0 0 20px #f472b6;
+    .animate-slide-in {
+      animation: slideIn 0.5s ease forwards;
     }
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-6px); }
+    .animate-fade-in {
+      animation: fadeIn 0.8s ease forwards;
     }
-    .dark-mode {
-      background: #0f0f1a;
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    .loader {
-      border: 3px solid #fff;
-      border-top: 3px solid #ec4899;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto;
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
-<body class="text-white flex items-center justify-center min-h-screen px-4 relative">
+<body class="bg-pink-900 text-white font-sans overflow-hidden relative"><canvas id="matrixCanvas"></canvas>
 
-  <div class="absolute top-4 right-4">
-    <button onclick="toggleMode()" class="bg-white text-pink-600 px-3 py-1 rounded-full text-xs font-bold">Toggle Mode</button>
-  </div>
-
-  <div class="card w-full max-w-md p-8 rounded-xl bg-white/10 text-white transition-all">
-    <h1 class="text-3xl font-bold text-center neon-text mb-1">SIM Data Lookup</h1>
-    <h2 class="text-center text-xs mb-6 text-pink-100">Created by Sohail Khan</h2>
-
-    <form id="simForm">
-      <input type="text" id="phone" placeholder="Enter 3xxxxxxxxx" required class="w-full p-3 mb-3 rounded bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-white placeholder-pink-100"/>
-      <button type="submit" class="w-full bg-white text-pink-700 font-bold p-3 rounded hover:bg-pink-300">🔍 Search</button>
-    </form>
-
-    <div id="response" class="mt-6 text-sm text-center"></div>
-
-    <div class="mt-6 space-y-3">
-      <button onclick="shareOnWhatsApp()" class="w-full bg-green-500 hover:bg-green-600 text-black font-bold py-2 rounded">📤 Share on WhatsApp</button>
-      <button onclick="document.getElementById('contactForm').classList.toggle('hidden')" class="w-full bg-pink-700 hover:bg-pink-800 text-white font-bold py-2 rounded">📧 Contact Developer</button>
+<div class="relative z-10 min-h-screen flex items-center justify-center px-4">
+  <div class="bg-pink-950 bg-opacity-80 backdrop-blur-lg rounded-2xl shadow-xl p-8 w-full max-w-md animate-fade-in">
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-3xl font-bold text-pink-400">SK</h1>
+      <button onclick="toggleTheme()" class="bg-white text-black rounded px-3 py-1 font-bold">Toggle Theme</button>
     </div>
-
-    <form id="contactForm" class="hidden mt-4 text-sm space-y-3">
-      <input type="text" placeholder="Your Name" class="w-full p-2 rounded bg-white/10 text-white focus:outline-none placeholder-pink-200">
-      <input type="email" placeholder="Your Email" class="w-full p-2 rounded bg-white/10 text-white focus:outline-none placeholder-pink-200">
-      <textarea rows="3" placeholder="Your Message" class="w-full p-2 rounded bg-white/10 text-white focus:outline-none placeholder-pink-200"></textarea>
-      <button type="button" onclick="alert('Message Sent!')" class="w-full bg-white text-pink-700 font-bold py-2 rounded">🚀 Send</button>
+    <h2 class="text-xl text-white text-center mb-4">🔍 SIM Data Search</h2>
+    <form id="simForm">
+      <input type="text" id="phone" placeholder="Enter phone number" required class="w-full p-3 rounded-lg bg-black text-white border border-pink-400 mb-4" />
+      <button type="submit" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold p-3 rounded-lg">🔍 Search</button>
     </form>
-
-    <p class="text-center text-xs mt-8 text-pink-200">© 2025 Created by Sohail Khan</p>
+    <div id="response" class="mt-6 text-sm"></div>
+    <button onclick="clearHistory()" class="mt-2 w-full bg-red-600 text-white p-2 rounded">🧹 Clear History</button>
+    <a href="https://whatsapp.com/channel/0029VajZpqL7T8bRvUqAU23A" target="_blank">
+      <button class="w-full mt-4 bg-green-500 hover:bg-green-600 text-black font-bold p-3 rounded-lg">💬 Contact Developer</button>
+    </a>
+    <div class="mt-6">
+      <h3 class="text-pink-300 font-semibold mb-2">Search History</h3>
+      <ul id="history" class="text-xs text-white space-y-1"></ul>
+    </div>
+    <div id="tipBox" class="text-center text-pink-200 mt-6 italic"></div>
   </div>
+</div><footer class="z-10 text-center p-4 text-pink-300 bg-black/50 fixed bottom-0 w-full text-xs">
+  © 2025 Created by Sohail Khan | For educational use only
+</footer><script>
+  const form = document.getElementById("simForm");
+  const responseBox = document.getElementById("response");
+  const historyBox = document.getElementById("history");
+  const tipBox = document.getElementById("tipBox");
 
-  <script>
-    const form = document.getElementById("simForm");
-    const responseBox = document.getElementById("response");
+  const tips = [
+    "Did you know? The first SMS was sent in 1992.",
+    "Fun Fact: SIM stands for Subscriber Identity Module.",
+    "Tip: Never share your SIM data with unknown sites.",
+    "LOL: My SIM card is more loyal than some people!"
+  ];
 
-    form.addEventListener("submit", async function (e) {
-      e.preventDefault();
-      const phone = document.getElementById("phone").value.trim();
-      responseBox.innerHTML = `<div class="loader mt-4"></div><p class="mt-2 text-pink-100">Searching...</p>`;
+  function loadHistory() {
+    const history = JSON.parse(localStorage.getItem('simHistory') || '[]');
+    historyBox.innerHTML = history.map(p => `<li>${p}</li>`).join('');
+  }
 
-      try {
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://legendxdata.site/Api/simdata.php?phone=' + phone)}`;
-        const res = await fetch(proxyUrl);
-        const data = await res.json();
+  function saveToHistory(phone) {
+    let history = JSON.parse(localStorage.getItem('simHistory') || '[]');
+    if (!history.includes(phone)) {
+      history.unshift(phone);
+      if (history.length > 5) history.pop();
+      localStorage.setItem('simHistory', JSON.stringify(history));
+      loadHistory();
+    }
+  }
 
-        if (data && data[0]) {
-          const user = data[0];
-          responseBox.innerHTML = `
-            <div class="bg-pink-100 text-pink-900 p-4 rounded text-left">
-              <h3 class="text-lg font-bold text-center mb-2">🔎 SIM Info</h3>
-              <p><strong>📞 Number:</strong> ${user.Number || "N/A"}</p>
-              <p><strong>👤 Name:</strong> ${user.Name || "N/A"}</p>
-              <p><strong>🆔 CNIC:</strong> ${user.CNIC || "N/A"}</p>
-              <p><strong>📍 Address:</strong> ${user.Address || "N/A"}</p>
-              <p><strong>📶 Operator:</strong> ${user.Operator || "N/A"}</p>
-              <button onclick="copyData()" class="mt-3 w-full bg-white text-pink-600 font-semibold py-2 rounded hover:bg-pink-200">📋 Copy Data</button>
-            </div>
-          `;
-        } else {
-          responseBox.innerHTML = `<div class="bg-pink-900 text-white p-3 rounded mt-4">❌ No data found for this number.</div>`;
-        }
-      } catch (err) {
-        responseBox.innerHTML = `<div class="bg-pink-900 text-white p-3 rounded mt-4">❌ Error fetching data.</div>`;
+  function clearHistory() {
+    localStorage.removeItem('simHistory');
+    loadHistory();
+  }
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const phone = document.getElementById("phone").value.trim();
+    if (!phone) return;
+
+    saveToHistory(phone);
+    responseBox.innerHTML = "<div class='text-center text-pink-300'>⏳ Fetching...</div>";
+
+    try {
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://legendxdata.site/Api/simdata.php?phone=' + phone)}`;
+      const res = await fetch(proxyUrl);
+      const data = await res.json();
+
+      if (data && data[0]) {
+        const user = data[0];
+        responseBox.innerHTML = `
+          <div class="bg-pink-800 p-4 rounded-lg shadow-lg space-y-2">
+            <h3 class="text-center text-pink-200 text-lg font-semibold">SIM Data Found</h3>
+            <p><strong>Mobile:</strong> ${user.Number || "Not found"}</p>
+            <p><strong>Name:</strong> ${user.Name || "Not found"}</p>
+            <p><strong>CNIC:</strong> ${user.CNIC || "Not found"}</p>
+            <p><strong>Address:</strong> ${user.Address || "Not found"}</p>
+            <p><strong>Operator:</strong> ${user.Operator || "Not found"}</p>
+            <button onclick="copyData()" class="w-full mt-2 bg-pink-600 hover:bg-pink-700 p-2 rounded">📋 Copy All Data</button>
+            <button onclick="shareOnWhatsApp()" class="w-full mt-2 bg-green-500 hover:bg-green-600 text-black p-2 rounded">📤 Share</button>
+          </div>`;
+      } else {
+        responseBox.innerHTML = `<div class="bg-red-900 text-center p-3 rounded">❌ No data found.</div>`;
       }
-    });
-
-    function copyData() {
-      const text = document.querySelector("#response").innerText;
-      navigator.clipboard.writeText(text).then(() => alert("✅ Copied to clipboard!"));
+    } catch (err) {
+      console.error(err);
+      responseBox.innerHTML = `<div class="bg-red-900 text-center p-3 rounded">❌ Error fetching data.</div>`;
     }
+  });
 
-    function shareOnWhatsApp() {
-      const text = document.querySelector("#response").innerText;
-      const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-      window.open(url, "_blank");
+  function copyData() {
+    const text = document.querySelector(".bg-pink-800").innerText;
+    navigator.clipboard.writeText(text).then(() => alert("✅ Copied!"));
+  }
+
+  function shareOnWhatsApp() {
+    const text = document.querySelector(".bg-pink-800").innerText;
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
+  }
+
+  function toggleTheme() {
+    document.body.classList.toggle('bg-black');
+    document.body.classList.toggle('bg-pink-900');
+  }
+
+  function showRandomTip() {
+    const tip = tips[Math.floor(Math.random() * tips.length)];
+    tipBox.innerText = tip;
+  }
+
+  loadHistory();
+  showRandomTip();
+
+  // Matrix effect
+  const canvas = document.getElementById("matrixCanvas");
+  const ctx = canvas.getContext("2d");
+  canvas.height = window.innerHeight;
+  canvas.width = window.innerWidth;
+  const chars = "01";
+  const fontSize = 16;
+  const columns = canvas.width / fontSize;
+  const drops = Array(Math.floor(columns)).fill(1);
+  function drawMatrix() {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#ff69b4";
+    ctx.font = fontSize + "px monospace";
+    for (let i = 0; i < drops.length; i++) {
+      const text = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+        drops[i] = 0;
+      }
+      drops[i]++;
     }
-
-    function toggleMode() {
-      document.body.classList.toggle("dark-mode");
-    }
-  </script>
-
-</body>
-  </html>
+  }
+  setInterval(drawMatrix, 30);
+</script></body>
+</html>

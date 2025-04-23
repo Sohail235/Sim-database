@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SIM Data Lookup - Created by Sohail Khan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #ff4e8e, #d946ef);
+      transition: background 0.4s;
+    }
+    .card {
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
+      animation: float 4s ease-in-out infinite;
+    }
+    .neon-text {
+      text-shadow: 0 0 10px #fff, 0 0 20px #f472b6;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    .dark-mode {
+      background: #0f0f1a;
+    }
+    .loader {
+      border: 3px solid #fff;
+      border-top: 3px solid #ec4899;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body class="text-white flex items-center justify-center min-h-screen px-4 relative">
+
+  <div class="absolute top-4 right-4">
+    <button onclick="toggleMode()" class="bg-white text-pink-600 px-3 py-1 rounded-full text-xs font-bold">Toggle Mode</button>
+  </div>
+
+  <div class="card w-full max-w-md p-8 rounded-xl bg-white/10 text-white transition-all">
+    <h1 class="text-3xl font-bold text-center neon-text mb-1">SIM Data Lookup</h1>
+    <h2 class="text-center text-xs mb-6 text-pink-100">Created by Sohail Khan</h2>
+
+    <form id="simForm">
+      <input type="text" id="phone" placeholder="Enter 3xxxxxxxxx" required class="w-full p-3 mb-3 rounded bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-white placeholder-pink-100"/>
+      <button type="submit" class="w-full bg-white text-pink-700 font-bold p-3 rounded hover:bg-pink-300">🔍 Search</button>
+    </form>
+
+    <div id="response" class="mt-6 text-sm text-center"></div>
+
+    <div class="mt-6 space-y-3">
+      <button onclick="shareOnWhatsApp()" class="w-full bg-green-500 hover:bg-green-600 text-black font-bold py-2 rounded">📤 Share on WhatsApp</button>
+      <button onclick="document.getElementById('contactForm').classList.toggle('hidden')" class="w-full bg-pink-700 hover:bg-pink-800 text-white font-bold py-2 rounded">📧 Contact Developer</button>
+    </div>
+
+    <form id="contactForm" class="hidden mt-4 text-sm space-y-3">
+      <input type="text" placeholder="Your Name" class="w-full p-2 rounded bg-white/10 text-white focus:outline-none placeholder-pink-200">
+      <input type="email" placeholder="Your Email" class="w-full p-2 rounded bg-white/10 text-white focus:outline-none placeholder-pink-200">
+      <textarea rows="3" placeholder="Your Message" class="w-full p-2 rounded bg-white/10 text-white focus:outline-none placeholder-pink-200"></textarea>
+      <button type="button" onclick="alert('Message Sent!')" class="w-full bg-white text-pink-700 font-bold py-2 rounded">🚀 Send</button>
+    </form>
+
+    <p class="text-center text-xs mt-8 text-pink-200">© 2025 Created by Sohail Khan</p>
+  </div>
+
+  <script>
+    const form = document.getElementById("simForm");
+    const responseBox = document.getElementById("response");
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const phone = document.getElementById("phone").value.trim();
+      responseBox.innerHTML = `<div class="loader mt-4"></div><p class="mt-2 text-pink-100">Searching...</p>`;
+
+      try {
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://legendxdata.site/Api/simdata.php?phone=' + phone)}`;
+        const res = await fetch(proxyUrl);
+        const data = await res.json();
+
+        if (data && data[0]) {
+          const user = data[0];
+          responseBox.innerHTML = `
+            <div class="bg-pink-100 text-pink-900 p-4 rounded text-left">
+              <h3 class="text-lg font-bold text-center mb-2">🔎 SIM Info</h3>
+              <p><strong>📞 Number:</strong> ${user.Number || "N/A"}</p>
+              <p><strong>👤 Name:</strong> ${user.Name || "N/A"}</p>
+              <p><strong>🆔 CNIC:</strong> ${user.CNIC || "N/A"}</p>
+              <p><strong>📍 Address:</strong> ${user.Address || "N/A"}</p>
+              <p><strong>📶 Operator:</strong> ${user.Operator || "N/A"}</p>
+              <button onclick="copyData()" class="mt-3 w-full bg-white text-pink-600 font-semibold py-2 rounded hover:bg-pink-200">📋 Copy Data</button>
+            </div>
+          `;
+        } else {
+          responseBox.innerHTML = `<div class="bg-pink-900 text-white p-3 rounded mt-4">❌ No data found for this number.</div>`;
+        }
+      } catch (err) {
+        responseBox.innerHTML = `<div class="bg-pink-900 text-white p-3 rounded mt-4">❌ Error fetching data.</div>`;
+      }
+    });
+
+    function copyData() {
+      const text = document.querySelector("#response").innerText;
+      navigator.clipboard.writeText(text).then(() => alert("✅ Copied to clipboard!"));
+    }
+
+    function shareOnWhatsApp() {
+      const text = document.querySelector("#response").innerText;
+      const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+      window.open(url, "_blank");
+    }
+
+    function toggleMode() {
+      document.body.classList.toggle("dark-mode");
+    }
+  </script>
+
+</body>
+  </html>

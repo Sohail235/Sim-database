@@ -2,177 +2,121 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SIM Data Lookup | Created by Sohail Khan</title>
+  <title>Created by Sohail Khan</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu&display=swap" rel="stylesheet">
   <style>
-    canvas {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 0;
+    body {
+      background: linear-gradient(to top left, #ff91af, #ffc1d6);
+      font-family: 'Segoe UI', sans-serif;
+      overflow-x: hidden;
+    }
+    .bubble {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      border-radius: 50px;
+      box-shadow: 0 0 20px rgba(255, 0, 100, 0.4);
+      padding: 20px;
+      margin: 10px;
+    }
+    .cloud-box {
+      background: #fff;
+      color: #ff1493;
+      font-weight: bold;
+      border-radius: 9999px;
+      display: inline-block;
+      padding: 10px 20px;
+      box-shadow: 0 0 10px #ff69b4;
+      font-size: 16px;
+      margin-bottom: 10px;
     }
     .urdu-text {
-      font-family: 'Noto Nastaliq Urdu', sans-serif;
+      font-family: 'Noto Nastaliq Urdu', serif;
     }
-    .animate-slide-in {
-      animation: slideIn 0.5s ease forwards;
+    .chatbot-bubble {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #fff;
+      color: #333;
+      padding: 12px 16px;
+      border-radius: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      z-index: 50;
+      font-weight: bold;
     }
-    .animate-fade-in {
-      animation: fadeIn 0.8s ease forwards;
+    .bubble-btn {
+      background: #ff69b4;
+      color: white;
+      font-weight: bold;
+      border-radius: 9999px;
+      padding: 12px 24px;
+      transition: transform 0.2s;
     }
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+    .bubble-btn:hover {
+      transform: scale(1.05);
     }
   </style>
 </head>
-<body class="bg-pink-900 text-white font-sans overflow-hidden relative"><canvas id="matrixCanvas"></canvas>
-
-<div class="relative z-10 min-h-screen flex items-center justify-center px-4">
-  <div class="bg-pink-950 bg-opacity-80 backdrop-blur-lg rounded-2xl shadow-xl p-8 w-full max-w-md animate-fade-in">
-    <div class="flex justify-between items-center mb-4">
-      <h1 class="text-3xl font-bold text-pink-400">SK</h1>
-      <button onclick="toggleTheme()" class="bg-white text-black rounded px-3 py-1 font-bold">Toggle Theme</button>
-    </div>
-    <h2 class="text-xl text-white text-center mb-4">🔍 SIM Data Search</h2>
+<body class="text-black p-4">
+  <div class="text-center mb-4">
+    <div class="cloud-box" id="dateBox"></div>
+  </div>  <div class="max-w-md mx-auto bubble">
+    <h1 class="text-3xl font-bold text-center text-pink-600 mb-2">Sim Data Checker</h1>
+    <h2 class="text-md text-center text-gray-700 mb-4">Created by Sohail Khan</h2>
     <form id="simForm">
-      <input type="text" id="phone" placeholder="Enter phone number" required class="w-full p-3 rounded-lg bg-black text-white border border-pink-400 mb-4" />
-      <button type="submit" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold p-3 rounded-lg">🔍 Search</button>
+      <input type="text" id="phone" placeholder="Enter phone number" required class="w-full p-3 rounded-full bg-white text-black mb-4" />
+      <button type="submit" class="bubble-btn w-full">🔍 Search</button>
     </form>
-    <div id="response" class="mt-6 text-sm"></div>
-    <button onclick="clearHistory()" class="mt-2 w-full bg-red-600 text-white p-2 rounded">🧹 Clear History</button>
-    <a href="https://whatsapp.com/channel/0029VajZpqL7T8bRvUqAU23A" target="_blank">
-      <button class="w-full mt-4 bg-green-500 hover:bg-green-600 text-black font-bold p-3 rounded-lg">💬 Contact Developer</button>
-    </a>
-    <div class="mt-6">
-      <h3 class="text-pink-300 font-semibold mb-2">Search History</h3>
-      <ul id="history" class="text-xs text-white space-y-1"></ul>
-    </div>
-    <div id="tipBox" class="text-center text-pink-200 mt-6 italic"></div>
-  </div>
-</div><footer class="z-10 text-center p-4 text-pink-300 bg-black/50 fixed bottom-0 w-full text-xs">
-  © 2025 Created by Sohail Khan | For educational use only
-</footer><script>
-  const form = document.getElementById("simForm");
-  const responseBox = document.getElementById("response");
-  const historyBox = document.getElementById("history");
-  const tipBox = document.getElementById("tipBox");
+    <div id="response" class="mt-4"></div>
+  </div>  <div class="text-center mt-4">
+    <button onclick="toggleUrdu()" class="bubble-btn">اردو / English</button>
+  </div>  <div class="chatbot-bubble">Hi! Need help?</div><audio id="clickSound" src="https://www.soundjay.com/buttons/sounds/button-16.mp3"></audio>
 
-  const tips = [
-    "Did you know? The first SMS was sent in 1992.",
-    "Fun Fact: SIM stands for Subscriber Identity Module.",
-    "Tip: Never share your SIM data with unknown sites.",
-    "LOL: My SIM card is more loyal than some people!"
-  ];
+  <script>
+    document.getElementById("simForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      document.getElementById("clickSound").play();
+      const phone = document.getElementById("phone").value.trim();
+      const responseBox = document.getElementById("response");
+      responseBox.innerHTML = "<div class='text-center text-pink-500'>⏳ Fetching...</div>";
 
-  function loadHistory() {
-    const history = JSON.parse(localStorage.getItem('simHistory') || '[]');
-    historyBox.innerHTML = history.map(p => `<li>${p}</li>`).join('');
-  }
+      try {
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://legendxdata.site/Api/simdata.php?phone=' + phone)}`;
+        const res = await fetch(proxyUrl);
+        const data = await res.json();
 
-  function saveToHistory(phone) {
-    let history = JSON.parse(localStorage.getItem('simHistory') || '[]');
-    if (!history.includes(phone)) {
-      history.unshift(phone);
-      if (history.length > 5) history.pop();
-      localStorage.setItem('simHistory', JSON.stringify(history));
-      loadHistory();
-    }
-  }
-
-  function clearHistory() {
-    localStorage.removeItem('simHistory');
-    loadHistory();
-  }
-
-  form.addEventListener("submit", async function (e) {
-    e.preventDefault();
-    const phone = document.getElementById("phone").value.trim();
-    if (!phone) return;
-
-    saveToHistory(phone);
-    responseBox.innerHTML = "<div class='text-center text-pink-300'>⏳ Fetching...</div>";
-
-    try {
-      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://legendxdata.site/Api/simdata.php?phone=' + phone)}`;
-      const res = await fetch(proxyUrl);
-      const data = await res.json();
-
-      if (data && data[0]) {
-        const user = data[0];
-        responseBox.innerHTML = `
-          <div class="bg-pink-800 p-4 rounded-lg shadow-lg space-y-2">
-            <h3 class="text-center text-pink-200 text-lg font-semibold">SIM Data Found</h3>
-            <p><strong>Mobile:</strong> ${user.Number || "Not found"}</p>
-            <p><strong>Name:</strong> ${user.Name || "Not found"}</p>
-            <p><strong>CNIC:</strong> ${user.CNIC || "Not found"}</p>
-            <p><strong>Address:</strong> ${user.Address || "Not found"}</p>
-            <p><strong>Operator:</strong> ${user.Operator || "Not found"}</p>
-            <button onclick="copyData()" class="w-full mt-2 bg-pink-600 hover:bg-pink-700 p-2 rounded">📋 Copy All Data</button>
-            <button onclick="shareOnWhatsApp()" class="w-full mt-2 bg-green-500 hover:bg-green-600 text-black p-2 rounded">📤 Share</button>
-          </div>`;
-      } else {
-        responseBox.innerHTML = `<div class="bg-red-900 text-center p-3 rounded">❌ No data found.</div>`;
+        if (data && data[0]) {
+          const user = data[0];
+          responseBox.innerHTML = `
+            <div class="bubble text-sm">
+              <h3 class="text-center text-pink-600 text-lg font-semibold">🔎 SIM Data Found</h3>
+              <p><strong>📞 Mobile:</strong> ${user.Number || "Not found"}</p>
+              <p><strong>👤 Name:</strong> ${user.Name || "Not found"}</p>
+              <p><strong>🆔 CNIC:</strong> ${user.CNIC || "Not found"}</p>
+              <p><strong>📍 Address:</strong> ${user.Address || "Not found"}</p>
+              <p><strong>📶 Operator:</strong> ${user.Operator || "Not found"}</p>
+              <button onclick="copyData()" class="bubble-btn mt-2 w-full">📋 Copy All Data</button>
+            </div>
+          `;
+        } else {
+          responseBox.innerHTML = `<div class="bubble text-center text-red-600">❌ No data found.</div>`;
+        }
+      } catch (err) {
+        responseBox.innerHTML = `<div class="bubble text-center text-red-600">❌ Error fetching data.</div>`;
       }
-    } catch (err) {
-      console.error(err);
-      responseBox.innerHTML = `<div class="bg-red-900 text-center p-3 rounded">❌ Error fetching data.</div>`;
+    });
+
+    function copyData() {
+      const text = document.querySelector("#response").innerText;
+      navigator.clipboard.writeText(text).then(() => alert("✅ Copied!"));
     }
-  });
 
-  function copyData() {
-    const text = document.querySelector(".bg-pink-800").innerText;
-    navigator.clipboard.writeText(text).then(() => alert("✅ Copied!"));
-  }
-
-  function shareOnWhatsApp() {
-    const text = document.querySelector(".bg-pink-800").innerText;
-    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    window.open(url, "_blank");
-  }
-
-  function toggleTheme() {
-    document.body.classList.toggle('bg-black');
-    document.body.classList.toggle('bg-pink-900');
-  }
-
-  function showRandomTip() {
-    const tip = tips[Math.floor(Math.random() * tips.length)];
-    tipBox.innerText = tip;
-  }
-
-  loadHistory();
-  showRandomTip();
-
-  // Matrix effect
-  const canvas = document.getElementById("matrixCanvas");
-  const ctx = canvas.getContext("2d");
-  canvas.height = window.innerHeight;
-  canvas.width = window.innerWidth;
-  const chars = "01";
-  const fontSize = 16;
-  const columns = canvas.width / fontSize;
-  const drops = Array(Math.floor(columns)).fill(1);
-  function drawMatrix() {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#ff69b4";
-    ctx.font = fontSize + "px monospace";
-    for (let i = 0; i < drops.length; i++) {
-      const text = chars[Math.floor(Math.random() * chars.length)];
-      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-        drops[i] = 0;
-      }
-      drops[i]++;
+    function toggleUrdu() {
+      document.body.classList.toggle("urdu-text");
     }
-  }
-  setInterval(drawMatrix, 30);
-</script></body>
+
+    // Set date in cloud box
+    document.getElementById("dateBox").innerText = new Date().toDateString();
+  </script></body>
 </html>
